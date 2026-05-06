@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/samosvalishe/olcrtc/compare/v1.0.0...v1.0.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* **ci:** include android sources jar in release artifacts ([3c37260](https://github.com/samosvalishe/olcrtc/commit/3c37260e7c64b7329f891fa8f419279aeb9b2fa0))
+* **ci:** skip build on push, run only on pull_request ([222104b](https://github.com/samosvalishe/olcrtc/commit/222104bb6df9078e6d2730b10fc3284449621c41))
+
 ## 1.0.0 (2026-05-06)
 
 
