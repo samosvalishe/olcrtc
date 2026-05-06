@@ -61,4 +61,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: android-aar
-          path: build/olcrtc.aar
+          path: build/olcrtc*

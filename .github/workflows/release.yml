@@ -66,11 +66,11 @@ jobs:
         run: |
           mkdir -p dist/sums
           cd dist
-          sha256sum cli/* android/olcrtc.aar > sums/SHA256SUMS
+          sha256sum cli/* android/* > sums/SHA256SUMS
 
       - name: Upload to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
           REPO: ${{ github.repository }}
-        run: gh release upload "$TAG" dist/cli/* dist/android/olcrtc.aar dist/sums/SHA256SUMS --clobber --repo "$REPO"
+        run: gh release upload "$TAG" dist/cli/* dist/android/* dist/sums/SHA256SUMS --clobber --repo "$REPO"
