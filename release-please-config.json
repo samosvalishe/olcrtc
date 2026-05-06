@@ -14,6 +14,8 @@
     { "type": "ci", "section": "CI", "hidden": true }
   ],
   "packages": {
-    ".": {}
+    ".": {
+      "bootstrap-sha": "1bf951d6e25cfc1f82502e6d82baba4d0d5faf10"
+    }
   }
 }
