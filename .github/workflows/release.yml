@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "beta" ]; then
+            echo "Release allowed only from master or beta. Got: ${{ github.ref_name }}"
+            exit 1
+          fi
+
+  release-please:
+    needs: guard
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Pick config
+        id: cfg
+        run: |
+          if [ "${{ github.ref_name }}" = "beta" ]; then
+            echo "config=release-please-config-beta.json" >> $GITHUB_OUTPUT
+            echo "manifest=.release-please-manifest-beta.json" >> $GITHUB_OUTPUT
+          else
+            echo "config=release-please-config.json" >> $GITHUB_OUTPUT
+            echo "manifest=.release-please-manifest.json" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          target-branch: ${{ github.ref_name }}
+          config-file: ${{ steps.cfg.outputs.config }}
+          manifest-file: ${{ steps.cfg.outputs.manifest }}
+
+  publish-assets:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch artifacts from latest CI run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          RUN_ID=$(gh run list --repo "$REPO" --workflow=ci.yml --branch="$BRANCH" --status=success --limit=1 --json databaseId -q '.[0].databaseId')
+          if [ -z "$RUN_ID" ]; then
+            echo "No successful CI run found on $BRANCH. Push commit first to run CI."
+            exit 1
+          fi
+          echo "Using CI run: $RUN_ID"
+          gh run download "$RUN_ID" --repo "$REPO" -n cli-binaries -D dist/cli
+          gh run download "$RUN_ID" --repo "$REPO" -n android-aar -D dist/android
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$TAG" dist/cli/* dist/android/olcrtc.aar --clobber --repo "$REPO"
