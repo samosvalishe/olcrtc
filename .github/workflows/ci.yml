@@ -17,5 +17,6 @@ jobs:
     uses: ./.github/workflows/_lint.yml
 
   build:
+    if: github.event_name == 'pull_request'
     needs: lint
     uses: ./.github/workflows/_build.yml
