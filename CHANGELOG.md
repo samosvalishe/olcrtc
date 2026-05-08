@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.2.0](https://github.com/samosvalishe/olcrtc/compare/v1.1.0...v1.2.0) (2026-05-08)
+
+
+### Features
+
+* add E2E test target to magefile ([dfaa37b](https://github.com/samosvalishe/olcrtc/commit/dfaa37bb2bfb9c7737da20b02b3d503199c84a86))
+* add real provider E2E test matrix for WebRTC carriers ([01d477a](https://github.com/samosvalishe/olcrtc/commit/01d477ad85739e765dc351809907ae2180d0a0ec))
+* **sei:** add sei config ([773f440](https://github.com/samosvalishe/olcrtc/commit/773f44049dfec5bf28e363c1b46bfb40fd14785d))
+* **test:** add e2e ([92a66dc](https://github.com/samosvalishe/olcrtc/commit/92a66dccf4a380c4ac6d725408970c4fcb6b4a1d))
+* **test:** init base test ([6bb7467](https://github.com/samosvalishe/olcrtc/commit/6bb7467b5a6e9dc8f999eac3d09a448306d2672f))
+* **test:** up test coverage ([1e040f8](https://github.com/samosvalishe/olcrtc/commit/1e040f8dff992342b7d03db918782e416834ebfb))
+* **test:** update e2e test ([c5a2d3b](https://github.com/samosvalishe/olcrtc/commit/c5a2d3bdb308b50bafeff0333fd56242bc3dc441))
+* update scripts ([bee4605](https://github.com/samosvalishe/olcrtc/commit/bee4605350cdaf74a2244678084389d538508ad3))
+
+
+### Bug Fixes
+
+* bug lint ([346a099](https://github.com/samosvalishe/olcrtc/commit/346a0996c7cc520c376c7d55877b2bfcf3edf32e))
+* fix suppress  noisy LiveKit/pion logs in non-debug mode ([9059b49](https://github.com/samosvalishe/olcrtc/commit/9059b49be2566478426ee5ffe099cb052eb2156e))
+* golangci ([f773e5a](https://github.com/samosvalishe/olcrtc/commit/f773e5a1d0120722bb95a81b20e4fa42e8e1e7b7))
+* golangci fix ([03aa4f9](https://github.com/samosvalishe/olcrtc/commit/03aa4f99600a7c538d4f16e2eaeab30e22a7a811))
+* satisfy mobile lint checks ([1a10f6e](https://github.com/samosvalishe/olcrtc/commit/1a10f6e5e3de1fe189d22be6b89fccad42413815))
+* srv dont leave bug ([176ef56](https://github.com/samosvalishe/olcrtc/commit/176ef565d5910ab2e481f13994db728dedc01a33))
+* **test:** fix all test bugs ([4f60679](https://github.com/samosvalishe/olcrtc/commit/4f60679c2e86599380c0574d4b1701f63e7c73a0))
+* throughput bug where maxWireFPS=120 capped send rate 32x too low ([f90b3c9](https://github.com/samosvalishe/olcrtc/commit/f90b3c9f9ea81fe5d7a42606c008c2df3e53da42))
+
+
+### Refactors
+
+* remove legacy code ([121b129](https://github.com/samosvalishe/olcrtc/commit/121b1293ed0419a9711519bdb31fa083d4064568))
+* **vp8channel:** change verbose info logs to debug level ([2e267da](https://github.com/samosvalishe/olcrtc/commit/2e267da843a1761497fd99d13cbbfaa7b54745c0))
+* **vp8channel:** remove debug logging and simplify frame handling ([6545056](https://github.com/samosvalishe/olcrtc/commit/6545056f0c76305bf215f0bc46e5af1bb0ff271c))
+* **vp8channel:** use VP8 keepalive prefix instead of magic byte for ([59c67b4](https://github.com/samosvalishe/olcrtc/commit/59c67b41ea6e0bc9cc181fb1493def4c7a9b026b))
+
 ## [1.1.0](https://github.com/samosvalishe/olcrtc/compare/v1.0.0...v1.1.0) (2026-05-06)
 
 
