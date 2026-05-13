@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    branches: [master, beta]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to rebuild and publish (e.g. v1.0.1). Skips release-please.'
+        required: false
+        type: string
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  release-please:
+    if: inputs.tag == ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Pick config
+        id: cfg
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ "$BRANCH" = "beta" ]; then
+            echo "config=release-please-config-beta.json" >> $GITHUB_OUTPUT
+            echo "manifest=.release-please-manifest-beta.json" >> $GITHUB_OUTPUT
+          else
+            echo "config=release-please-config.json" >> $GITHUB_OUTPUT
+            echo "manifest=.release-please-manifest.json" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          target-branch: ${{ github.ref_name }}
+          config-file: ${{ steps.cfg.outputs.config }}
+          manifest-file: ${{ steps.cfg.outputs.manifest }}
+
+  build:
+    needs: release-please
+    if: |
+      always() &&
+      (needs.release-please.outputs.release_created == 'true' || inputs.tag != '')
+    uses: ./.github/workflows/_build.yml
+    with:
+      ref: ${{ inputs.tag }}
+
+  publish:
+    needs: [release-please, build]
+    if: |
+      always() && needs.build.result == 'success' &&
+      (needs.release-please.outputs.release_created == 'true' || inputs.tag != '')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-binaries
+          path: dist/cli
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-aar
+          path: dist/android
+
+      - name: Generate SHA256SUMS
+        run: |
+          mkdir -p dist/sums
+          cd dist
+          sha256sum cli/* android/* > sums/SHA256SUMS
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag != '' && inputs.tag || needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$TAG" dist/cli/* dist/android/* dist/sums/SHA256SUMS --clobber --repo "$REPO"

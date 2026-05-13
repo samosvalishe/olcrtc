@@ -1,10 +1,16 @@
 name: CI
 
 on:
-  push:
-    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main", "master" ]
+  push:
+    branches: [master, beta]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   test:
@@ -63,80 +69,9 @@ jobs:
             -olcrtc.real-e2e
 
   lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25.x'
-          
-      - name: golangci-lint
-        run: |
-          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
-          $(go env GOPATH)/bin/golangci-lint run --timeout=5m
+    uses: ./.github/workflows/_lint.yml
 
-  build-cli:
-    name: Build CLI (Binaries)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25.x'
-          
-      - name: Install Mage
-        run: go install github.com/magefile/mage@latest
-        
-      - name: Build CLI (Cross)
-        run: mage cross
-        
-      - name: Upload CLI Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: olcrtc-cli-binaries
-          path: build/
-
-  build-android:
-    name: Build Android (AAR)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25.x'
-          
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          
-      - name: Install gomobile
-        run: |
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          gomobile init
-          
-      - name: Install Mage
-        run: go install github.com/magefile/mage@latest
-        
-      - name: Build Mobile
-        run: mage mobile
-        
-      - name: Upload Android Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: olcrtc-android
-          path: build/olcrtc.aar
+  build:
+    if: github.event_name == 'pull_request'
+    needs: lint
+    uses: ./.github/workflows/_build.yml
